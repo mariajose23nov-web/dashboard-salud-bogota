@@ -151,6 +151,6 @@ if not df_an.empty:
     fig_scat.update_traces(textposition='top center', marker=dict(size=10, color='#003366'))
     st.plotly_chart(fig_scat, use_container_width=True)
     
-    corr_sp = df_an['PM25_PROMEDIO'].corr(df_an['Prevalencia_%'], method='spearman')
-    st.info(f"**Coeficiente de Spearman:** {corr_sp:.3f}")
+corr_sp = df_an['PM25_PROMEDIO'].corr(df_an['Prevalencia_%'])
+st.info(f"**Coeficiente de Correlación:** {corr_sp:.3f}")
     st.markdown("Se evidencia una **tendencia o asociación observada** positiva entre las zonas con mayor concentración de PM2.5 y una mayor prevalencia de síntomas respiratorios sin gripa. *Nota: Esta asociación no demuestra relación directa de causalidad.*")
