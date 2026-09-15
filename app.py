@@ -37,15 +37,24 @@ def cargar_datos():
     df_salud.columns = df_salud.columns.str.strip().str.upper()
     df_iboca.columns = df_iboca.columns.str.strip().str.upper()
 
-    # Cargar GeoJSON de Bogotá de forma segura
+    # Cargar GeoJSON de localidades de Bogotá
+geojson = None
+try:
+    url = "https://services7.arcgis.com/ql3J5E4GJ6nKWQSK/ArcGIS/rest/services/Localidades_Bogot%C3%A1/FeatureServer/0/query"
+    
+    params = {
+        "where": "1=1",
+        "outFields": "*",
+        "f": "geojson"
+    }
+
+    res = requests.get(url, params=params, timeout=30)
+    res.raise_for_status()
+    geojson = res.json()
+
+except Exception as e:
+    st.error(f"Error cargando mapa: {e}")
     geojson = None
-    try:
-        url = "https://raw.githubusercontent.com/gongora2/bogota_geojson/main/localidades.json"
-        res = requests.get(url, timeout=5)
-        if res.status_code == 200:
-            geojson = res.json()
-    except:
-        geojson = None
         
     return df_salud, df_iboca, geojson
 
@@ -91,7 +100,7 @@ with col_map:
     if geojson_bogota:
         fig1 = px.choropleth_mapbox(
             df_loc_salud, geojson=geojson_bogota, locations='LOCALIDAD',
-            featureidkey="properties.Nombre", color='Prevalencia_%',
+            featureidkey="properties.LocNombre", color='Prevalencia_%',
             color_continuous_scale="YlOrRd", mapbox_style="carto-positron",
             zoom=9.3, center={"lat": 4.63, "lon": -74.08}, hover_name='LOCALIDAD',
             hover_data={'total_encuestados': True, 'total_sintomas': True, 'Prevalencia_%': ':.2f'}
@@ -121,15 +130,14 @@ st.divider()
 st.header("2. Dashboard de PM2.5 y comparación con síntomas respiratorios")
 
 # Normalizar columna LOCALIDAD en ambos datasets para asegurar el merge
-df_loc_salud['LOCALIDAD'] = df_loc_salud['LOCALIDAD'].astype(str).str.strip().str.upper()
-df_iboca['LOCALIDAD'] = df_iboca['LOCALIDAD'].astype(str).str.strip().str.upper()
+df_mapa_iboca = pd.merge(df_loc_salud, df_iboca, on='LOCALIDAD', how='left')
 
 df_mapa_iboca = pd.merge(df_loc_salud, df_iboca, on='LOCALIDAD', how='left')
 
 if geojson_bogota:
     fig2 = px.choropleth_mapbox(
         df_mapa_iboca, geojson=geojson_bogota, locations='LOCALIDAD',
-        featureidkey="properties.Nombre", color='PM25_PROMEDIO',
+        featureidkey="properties.LocNombre", color='PM25_PROMEDIO',
         color_continuous_scale="Reds", mapbox_style="carto-positron",
         zoom=9.3, center={"lat": 4.63, "lon": -74.08}, hover_name='LOCALIDAD',
         hover_data={'PM25_PROMEDIO': ':.2f', 'total_encuestados': True, 'total_sintomas': True, 'Prevalencia_%': ':.2f'}
