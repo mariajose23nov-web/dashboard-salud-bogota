@@ -153,4 +153,4 @@ if not df_an.empty:
     
 corr_sp = df_an['PM25_PROMEDIO'].corr(df_an['Prevalencia_%'])
 st.info(f"**Coeficiente de Correlación:** {corr_sp:.3f}")
-    st.markdown("Se evidencia una **tendencia o asociación observada** positiva entre las zonas con mayor concentración de PM2.5 y una mayor prevalencia de síntomas respiratorios sin gripa. *Nota: Esta asociación no demuestra relación directa de causalidad.*")
+st.markdown("Se evidencia una **tendencia o asociación observada** positiva entre las zonas con mayor concentración de PM2.5 y una mayor prevalencia de síntomas respiratorios sin gripa. *Nota: Esta asociación no demuestra relación directa de causalidad.*")
