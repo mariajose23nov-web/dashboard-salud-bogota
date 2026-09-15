@@ -15,12 +15,12 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-st.title("Prevalencia de síntomas respiratorios sin gripa en menores de 5 años – 2025")
+st.title("Prevalencia de síntomas respiratorios sin gripa en menores de 5 años – enero a julio de 2025")
 
 st.markdown("""
 <div class="info-box">
     <strong>Observatorio de Salud de Bogotá (SaluData)</strong> — Encuesta periódica de salud en Bogotá, D.C.<br>
-    <em>Indicador de prevalencia de síntomas respiratorios sin estar cursando un cuadro gripal en menores de 5 años durante 2025.</em>
+    <em>Indicador de prevalencia de síntomas respiratorios sin estar cursando un cuadro gripal en el período comprendido entre enero y julio de 2025.</em>
 </div>
 """, unsafe_allow_html=True)
 
@@ -32,32 +32,23 @@ def cargar_datos():
     except Exception as e:
         st.error(f"Error al cargar los archivos CSV: {e}")
         return pd.DataFrame(), pd.DataFrame(), None
-
+    
     # Estandarizar nombres de columnas a mayúsculas
     df_salud.columns = df_salud.columns.str.strip().str.upper()
     df_iboca.columns = df_iboca.columns.str.strip().str.upper()
 
-    # Cargar GeoJSON de localidades de Bogotá
+    # Cargar GeoJSON de Bogotá de forma segura
     geojson = None
-
     try:
-        url = "https://services7.arcgis.com/ql3J5E4GJ6nKWQSK/ArcGIS/rest/services/Localidades_Bogot%C3%A1/FeatureServer/0/query"
-
-        params = {
-            "where": "1=1",
-            "outFields": "*",
-            "f": "geojson"
-        }
-
-        res = requests.get(url, params=params, timeout=30)
-        res.raise_for_status()
-        geojson = res.json()
-
-    except Exception as e:
-        st.error(f"Error cargando mapa: {e}")
+        url = "https://raw.githubusercontent.com/gongora2/bogota_geojson/master/localidades.json"
+        res = requests.get(url, timeout=5)
+        if res.status_code == 200:
+            geojson = res.json()
+    except:
         geojson = None
-
+        
     return df_salud, df_iboca, geojson
+
 df_salud, df_iboca, geojson_bogota = cargar_datos()
 
 if df_salud.empty:
@@ -79,12 +70,10 @@ df_loc_salud['Prevalencia_%'] = np.where(df_loc_salud['total_encuestados'] > 0, 
 df_loc_salud['Prevalencia_%'] = df_loc_salud['Prevalencia_%'].round(2)
 
 # Métricas principales
-# Métricas principales
 c1, c2, c3 = st.columns(3)
 t_enc = int(df_salud_filt['NINOS_ENCUESTADOS'].sum())
 t_sint = int(df_salud_filt['CASOS_SIN_GRIPA'].sum())
 prev = (t_sint / t_enc * 100) if t_enc > 0 else 0
-
 c1.metric("Niños Encuestados", f"{t_enc:,}")
 c2.metric("Con Síntomas Sin Gripa", f"{t_sint:,}")
 c3.metric("Prevalencia Calculada", f"{prev:.2f}%")
@@ -100,7 +89,7 @@ with col_map:
     if geojson_bogota:
         fig1 = px.choropleth_mapbox(
             df_loc_salud, geojson=geojson_bogota, locations='LOCALIDAD',
-            featureidkey="properties.LocNombre", color='Prevalencia_%',
+            featureidkey="properties.Nombre", color='Prevalencia_%',
             color_continuous_scale="YlOrRd", mapbox_style="carto-positron",
             zoom=9.3, center={"lat": 4.63, "lon": -74.08}, hover_name='LOCALIDAD',
             hover_data={'total_encuestados': True, 'total_sintomas': True, 'Prevalencia_%': ':.2f'}
@@ -130,14 +119,15 @@ st.divider()
 st.header("2. Dashboard de PM2.5 y comparación con síntomas respiratorios")
 
 # Normalizar columna LOCALIDAD en ambos datasets para asegurar el merge
-df_mapa_iboca = pd.merge(df_loc_salud, df_iboca, on='LOCALIDAD', how='left')
+df_loc_salud['LOCALIDAD'] = df_loc_salud['LOCALIDAD'].astype(str).str.strip().str.upper()
+df_iboca['LOCALIDAD'] = df_iboca['LOCALIDAD'].astype(str).str.strip().str.upper()
 
 df_mapa_iboca = pd.merge(df_loc_salud, df_iboca, on='LOCALIDAD', how='left')
 
 if geojson_bogota:
     fig2 = px.choropleth_mapbox(
         df_mapa_iboca, geojson=geojson_bogota, locations='LOCALIDAD',
-        featureidkey="properties.LocNombre", color='PM25_PROMEDIO',
+        featureidkey="properties.Nombre", color='PM25_PROMEDIO',
         color_continuous_scale="Reds", mapbox_style="carto-positron",
         zoom=9.3, center={"lat": 4.63, "lon": -74.08}, hover_name='LOCALIDAD',
         hover_data={'PM25_PROMEDIO': ':.2f', 'total_encuestados': True, 'total_sintomas': True, 'Prevalencia_%': ':.2f'}
@@ -161,6 +151,6 @@ if not df_an.empty:
     fig_scat.update_traces(textposition='top center', marker=dict(size=10, color='#003366'))
     st.plotly_chart(fig_scat, use_container_width=True)
     
-corr_sp = df_an['PM25_PROMEDIO'].corr(df_an['Prevalencia_%'])
-st.info(f"**Coeficiente de Correlación:** {corr_sp:.3f}")
-st.markdown("Se evidencia una **tendencia o asociación observada** positiva entre las zonas con mayor concentración de PM2.5 y una mayor prevalencia de síntomas respiratorios sin gripa. *Nota: Esta asociación no demuestra relación directa de causalidad.*")
+    corr_sp = df_an['PM25_PROMEDIO'].corr(df_an['Prevalencia_%'], method='spearman')
+    st.info(f"**Coeficiente de Spearman:** {corr_sp:.3f}")
+    st.markdown("Se evidencia una **tendencia o asociación observada** positiva entre las zonas con mayor concentración de PM2.5 y una mayor prevalencia de síntomas respiratorios sin gripa. *Nota: Esta asociación no demuestra relación directa de causalidad.*")
