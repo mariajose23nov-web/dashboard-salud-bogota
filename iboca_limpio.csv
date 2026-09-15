@@ -1,12 +1,14 @@
-LOCALIDAD,PM25_Promedio
-Ciudad Bolívar,13.742742433600988
-Engativá,16.303180439521228
-Fontibón,14.605197755752524
-Kennedy,16.11623551283048
-Puente Aranda,14.440133965950322
-San Cristóbal,16.196169471851423
-Santa Fe,15.060765815760266
-Suba,17.81623747168734
-Tunjuelito,13.494561740243123
-Usaquén,16.278625954198475
-Usme,14.701072774717309
+﻿LOCALIDAD,PM25_Promedio
+Barrios Unidos,10.8
+Chapinero,10.8
+Ciudad Bolívar,13.3
+Engativá,11.75
+Fontibón,16.1
+Kennedy,23.65
+Puente Aranda,12.45
+San Cristóbal,10.4
+Santa Fe,11.6
+Suba,12.55
+Tunjuelito,14.7
+Usaquén,7.3
+Usme,10.6
