@@ -70,10 +70,12 @@ df_loc_salud['Prevalencia_%'] = np.where(df_loc_salud['total_encuestados'] > 0, 
 df_loc_salud['Prevalencia_%'] = df_loc_salud['Prevalencia_%'].round(2)
 
 # Métricas principales
+# Métricas principales
 c1, c2, c3 = st.columns(3)
 t_enc = int(df_salud_filt['NINOS_ENCUESTADOS'].sum())
 t_sint = int(df_salud_filt['CASOS_SIN_GRIPA'].sum())
 prev = (t_sint / t_enc * 100) if t_enc > 0 else 0
+
 c1.metric("Niños Encuestados", f"{t_enc:,}")
 c2.metric("Con Síntomas Sin Gripa", f"{t_sint:,}")
 c3.metric("Prevalencia Calculada", f"{prev:.2f}%")
