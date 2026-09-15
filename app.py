@@ -15,12 +15,12 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-st.title("Prevalencia de síntomas respiratorios sin gripa en menores de 5 años – enero a julio de 2025")
+st.title("Prevalencia de síntomas respiratorios sin gripa en menores de 5 años – 2025")
 
 st.markdown("""
 <div class="info-box">
     <strong>Observatorio de Salud de Bogotá (SaluData)</strong> — Encuesta periódica de salud en Bogotá, D.C.<br>
-    <em>Indicador de prevalencia de síntomas respiratorios sin estar cursando un cuadro gripal en el período comprendido entre enero y julio de 2025.</em>
+    <em>Indicador de prevalencia de síntomas respiratorios sin estar cursando un cuadro gripal en menores de 5 años durante 2025.</em>
 </div>
 """, unsafe_allow_html=True)
 
