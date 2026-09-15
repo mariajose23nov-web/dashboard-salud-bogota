@@ -40,7 +40,7 @@ def cargar_datos():
     # Cargar GeoJSON de Bogotá de forma segura
     geojson = None
     try:
-        url = "https://raw.githubusercontent.com/gongora2/bogota_geojson/master/localidades.json"
+        url = "https://raw.githubusercontent.com/gongora2/bogota_geojson/main/localidades.json"
         res = requests.get(url, timeout=5)
         if res.status_code == 200:
             geojson = res.json()
