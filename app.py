@@ -32,32 +32,32 @@ def cargar_datos():
     except Exception as e:
         st.error(f"Error al cargar los archivos CSV: {e}")
         return pd.DataFrame(), pd.DataFrame(), None
-    
+
     # Estandarizar nombres de columnas a mayúsculas
     df_salud.columns = df_salud.columns.str.strip().str.upper()
     df_iboca.columns = df_iboca.columns.str.strip().str.upper()
 
     # Cargar GeoJSON de localidades de Bogotá
-geojson = None
-try:
-    url = "https://services7.arcgis.com/ql3J5E4GJ6nKWQSK/ArcGIS/rest/services/Localidades_Bogot%C3%A1/FeatureServer/0/query"
-    
-    params = {
-        "where": "1=1",
-        "outFields": "*",
-        "f": "geojson"
-    }
-
-    res = requests.get(url, params=params, timeout=30)
-    res.raise_for_status()
-    geojson = res.json()
-
-except Exception as e:
-    st.error(f"Error cargando mapa: {e}")
     geojson = None
-        
-    return df_salud, df_iboca, geojson
 
+    try:
+        url = "https://services7.arcgis.com/ql3J5E4GJ6nKWQSK/ArcGIS/rest/services/Localidades_Bogot%C3%A1/FeatureServer/0/query"
+
+        params = {
+            "where": "1=1",
+            "outFields": "*",
+            "f": "geojson"
+        }
+
+        res = requests.get(url, params=params, timeout=30)
+        res.raise_for_status()
+        geojson = res.json()
+
+    except Exception as e:
+        st.error(f"Error cargando mapa: {e}")
+        geojson = None
+
+    return df_salud, df_iboca, geojson
 df_salud, df_iboca, geojson_bogota = cargar_datos()
 
 if df_salud.empty:
